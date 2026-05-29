@@ -1,0 +1,739 @@
+<html>
+
+<!--=======================================================================-->
+
+  <head>
+    <title>General Game Playing - Chapter 2</title>
+<script type='text/javascript'>
+//------------------------------------------------------------------------------
+// Drawing
+//------------------------------------------------------------------------------
+
+function drawsplit(x,w)
+ {var canvas = document.getElementById(x);
+  var ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.moveTo(w/4,20);
+  ctx.lineTo(w/2+w/4,20);
+  ctx.stroke();
+  ctx.moveTo(w/2,0);
+  ctx.lineTo(w/2,20);
+  ctx.stroke()
+  ctx.moveTo(w/4,20);
+  ctx.lineTo(w/4,40);
+  ctx.stroke()
+  ctx.moveTo(w/2+w/4,20);
+  ctx.lineTo(w/2+w/4,40);
+  ctx.stroke()}
+
+function drawline(u,v,x,y,w)
+ {var canvas = document.getElementById(w);
+  var ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.lineWidth=2;
+  ctx.moveTo(u,v);
+  ctx.lineTo(x,y);
+  ctx.stroke()}
+
+function drawvertical(x,y,w)
+ {var canvas = document.getElementById(w);
+  var ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.lineWidth=4;
+  ctx.moveTo(x,y);
+  ctx.lineTo(x,y+30);
+  ctx.stroke()}
+
+function drawinverterleft(x,y,w)
+ {var canvas = document.getElementById(w);
+  var ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.lineWidth=2;
+  ctx.moveTo(x+24,y+6);
+  ctx.lineTo(x+24,y+24);
+  ctx.lineTo(x+6,y+15);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.fillStyle = "#dddddd";
+  ctx.fill()}
+
+function drawinverterright(x,y,w)
+ {var canvas = document.getElementById(w);
+  var ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.lineWidth=2;
+  ctx.moveTo(x+6,y+6);
+  ctx.lineTo(x+24,y+15);
+  ctx.lineTo(x+6,y+24);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.fillStyle = "#dddddd";
+  ctx.fill()}
+
+function drawinverterdown(x,y,w)
+ {var canvas = document.getElementById(w);
+  var ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.lineWidth=2;
+  ctx.moveTo(x+6,y+6);
+  ctx.lineTo(x+24,y+6);
+  ctx.lineTo(x+15,y+24);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.fillStyle = "#dddddd";
+  ctx.fill()}
+
+function drawbox(u,v,x,y,w)
+ {var canvas = document.getElementById(w);
+  var ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.moveTo(u,v);
+  ctx.lineTo(x,v);
+  ctx.stroke();
+  ctx.moveTo(x,v);
+  ctx.lineTo(x,y);
+  ctx.stroke();
+  ctx.moveTo(x,y);
+  ctx.lineTo(u,y);
+  ctx.stroke();
+  ctx.moveTo(u,y);
+  ctx.lineTo(u,v);
+  ctx.stroke();}
+
+function drawand(u,v,w)
+ {var canvas = document.getElementById(w);
+  var ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.moveTo(u,v);
+  ctx.lineTo(u+15,v);
+  ctx.stroke();
+  ctx.moveTo(u+15,v);
+  ctx.arc(u+15,v+15,15, -Math.PI/2, Math.PI/2, false);
+  ctx.stroke();
+  ctx.moveTo(u+15,v+30);
+  ctx.lineTo(u,v+30);
+  ctx.stroke();
+  ctx.moveTo(u,v+30);
+  ctx.lineTo(u,v);
+  ctx.stroke();
+  ctx.fillStyle = "#dddddd";
+  ctx.fill();
+  ctx.fillRect(u,v,15,30)}
+
+function drawandleft(u,v,w)
+ {var canvas = document.getElementById(w);
+  var ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.moveTo(u+30,v);
+  ctx.lineTo(u+15,v);
+  ctx.arc(u+15,v+15,15,-Math.PI/2,Math.PI/2, true);
+  ctx.lineTo(u+30,v+30);
+  ctx.stroke();
+  ctx.closePath()
+  ctx.fillStyle = "#dddddd";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(u+30,v);
+  ctx.lineWidth=1;
+  ctx.lineTo(u+30,v+30);
+  ctx.stroke();
+  ctx.fillStyle = "#ffffff";
+  ctx.fill()}
+
+function drawor(u,v,w)
+ {var canvas = document.getElementById(w);
+  var ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.moveTo(u,v);
+  ctx.lineTo(u+15,v);
+  ctx.arc(u+15,v+15,15, -Math.PI/2, Math.PI/2, false);
+  ctx.lineTo(u,v+30);
+  ctx.stroke();
+  ctx.fillStyle = "#dddddd";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(u,v);
+  ctx.arc(u,v+15,15,-Math.PI/2,Math.PI/2, false);
+  ctx.stroke();
+  ctx.fillStyle = "#ffffff";
+  ctx.fill()}
+
+function draworleft(u,v,w)
+ {var canvas = document.getElementById(w);
+  var ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.moveTo(u+30,v);
+  ctx.lineTo(u+15,v);
+  ctx.arc(u+15,v+15,15,-Math.PI/2,Math.PI/2, true);
+  ctx.lineTo(u+30,v+30);
+  ctx.stroke();
+  ctx.closePath()
+  ctx.fillStyle = "#dddddd";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(u+30,v);
+  ctx.arc(u+30,v+15,15,-Math.PI/2,Math.PI/2, true);
+  ctx.stroke();
+  ctx.fillStyle = "#ffffff";
+  ctx.fill()}
+
+function drawproposition (x,y,w)
+ {var canvas = document.getElementById(w);
+  var ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.lineWidth=2;
+  ctx.arc(x+15,y+15,12,0,2*Math.PI,false);
+  ctx.stroke();
+  ctx.fillStyle = "#dcccb3";
+  ctx.fill();}
+
+function drawlight (x,y,w)
+ {var canvas = document.getElementById(w);
+  var ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.lineWidth=2;
+  ctx.arc(x+15,y+15,14,0,2*Math.PI,false);
+  ctx.stroke()
+  ctx.fillStyle = "#eeeeee";
+  ctx.fill()}
+
+function drawbutton (x,y,w)
+ {var canvas = document.getElementById(w);
+  var ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.lineWidth=2;
+  ctx.moveTo(x+2,y+5);
+  ctx.lineTo(x+28,y+5);
+  ctx.lineTo(x+28,y+25);
+  ctx.lineTo(x+2,y+25);
+  ctx.closePath();
+  ctx.stroke()
+  ctx.fillStyle = "#cccccc";
+  ctx.fill()}
+
+function drawtext (text,x,y,w)
+ {var canvas = document.getElementById(w);
+  var ctx = canvas.getContext('2d');
+  ctx.fillStyle = "#000000";
+  ctx.font="italic 14px Times"
+  ctx.fillText(text,x+12,y+18);
+  return true}
+
+function drawcircuit (w,a,b,p,q,r,s)
+ {drawproposition(30,0,w); drawtext(a,30,0,w)
+  drawline(57,15,75,15,w)
+  drawline(75,15,75,40,w)
+  drawline(75,40,90,40,w)
+  drawproposition(30,60,w); drawtext(s,30,60,w)
+  drawline(57,75,75,75,w)
+  drawline(75,75,75,50,w)
+  drawline(75,50,90,50,w)
+  drawand(90,30,w)
+  drawline(120,45,153,45,w)
+  drawproposition(150,30,w); drawtext(p,150,30,w)
+  drawline(177,45,285,45,w)
+  drawinverterright(210,30,w)
+  drawline(285,45,285,93,w)
+  draworleft(210,120,w)
+  drawproposition(270,90,w); drawtext(q,270,90,w)
+  drawline(273,105,255,105,w)
+  drawline(255,105,255,130,w)
+  drawline(255,130,225,130,w)
+  drawproposition(270,150,w); drawtext(b,270,150,w)
+  drawline(273,165,255,165,w)
+  drawline(255,165,255,140,w)
+  drawline(255,140,225,140,w)
+  drawline(210,135,177,135,w)
+  drawproposition(150,120,w); drawtext(r,150,120,w)
+  drawline(153,135,45,135,w)
+  drawline(45,135,45,87,w)
+  drawvertical(105,120,w)
+  return true}
+
+function drawcircuit2 (w,a,b,p,q,r,s,x,y)
+ {drawproposition(x,0,w); drawtext(a,x,0,w)
+  drawline(x+27,15,x+45,15,w)
+  drawline(x+45,15,x+45,40,w)
+  drawline(x+45,40,x+60,40,w)
+  drawproposition(x,60,w); drawtext(s,x,60,w)
+  drawline(x+27,75,x+45,75,w)
+  drawline(x+45,75,x+45,50,w)
+  drawline(x+45,50,x+60,50,w)
+  drawand(x+60,30,w)
+  drawline(x+90,45,x+123,45,w)
+  drawproposition(x+120,30,w); drawtext(p,x+120,30,w)
+  drawline(x+147,45,x+255,45,w)
+  drawinverterright(x+180,30,w)
+  drawline(x+255,45,x+255,93,w)
+  draworleft(x+180,120,w)
+  drawproposition(x+240,90,w); drawtext(q,x+240,90,w)
+  drawline(x+243,105,x+225,105,w)
+  drawline(x+225,105,x+225,130,w)
+  drawline(x+225,130,x+195,130,w)
+  drawproposition(x+240,150,w); drawtext(b,x+240,150,w)
+  drawline(x+243,165,x+225,165,w)
+  drawline(x+225,165,x+225,140,w)
+  drawline(x+225,140,x+195,140,w)
+  drawline(x+180,135,x+147,135,w)
+  drawproposition(x+120,120,w); drawtext(r,x+120,120,w)
+  drawline(x+123,135,x+15,135,w)
+  drawline(x+15,135,x+15,87,w)
+  drawvertical(x+85,120,w)
+  return true}
+
+function drawtermnet (x,y,w)
+ {drawcircuit2(w,'a','b','p','q','r','s',x+120,0);
+
+  drawline(x+387,105,x+420,105,w)
+  drawand(x+420,90,w)
+  drawline(x+450,105,x+483,105,w)
+  drawproposition(x+480,90,w); drawtext('t',x+480,90,w)
+  return true}
+
+function drawgoalnet (x,y,w)
+ {drawproposition(x,60,w); drawtext('100',x-8,62,w)
+  drawline(x+27,75,x+60,75,w)
+  drawandleft(x+60,60,w)
+  drawline(x+90,75,x+123,75,w)
+  drawline(x+45,75,x+45,153,w)
+  drawinverterdown(x+30,105,w)
+  drawproposition(x+30,150,w); drawtext('0',x+30,150,w)
+
+  drawcircuit2(w,'a','b','p','q','r','s',x+120,0);
+
+  drawline(x+387,105,x+420,105,w)
+  drawand(x+420,90,w)
+  drawline(x+450,105,x+483,105,w)
+  drawproposition(x+480,90,w); drawtext('t',x+480,90,w)
+
+  return true}
+
+function drawpropnet (x,y,w)
+ {drawproposition(x+60,0,w); drawtext('la',x+60,0,w)
+  drawline(x+75,27,x+75,45,w)
+  drawline(x+75,45,x+45,45,w)
+  drawvertical(x+45,30,w)
+  drawline(x+45,45,x+15,45,w)
+  drawline(x+15,45,x+15,15,w)
+  drawline(x+15,15,x+63,15,w)
+
+  drawproposition(x,60,w); drawtext('100',x-8,62,w)
+  drawline(x+27,75,x+60,75,w)
+  drawandleft(x+60,60,w)
+  drawline(x+90,75,x+123,75,w)
+  drawline(x+45,75,x+45,153,w)
+  drawinverterdown(x+30,105,w)
+  drawproposition(x+30,150,w); drawtext('0',x+30,150,w)
+
+  drawcircuit2(w,'a','b','p','q','r','s',x+120,0);
+
+  drawline(x+387,105,x+420,105,w)
+  drawand(x+420,90,w)
+  drawline(x+450,105,x+483,105,w)
+  drawproposition(x+480,90,w); drawtext('t',x+480,90,w)
+
+  drawproposition(x+420,150,w); drawtext('lb',x+420,150,w)
+  drawline(x+435,152,x+435,135,w)
+  drawline(x+435,135,x+465,135,w)
+  drawvertical(x+465,120,w)
+  drawline(x+465,135,x+495,135,w)
+  drawline(x+495,135,x+495,165,w)
+  drawline(x+495,165,x+447,165,w)
+
+  return true}
+  </script>  <style type="text/css">
+    @media print {p.exercise {display:none}
+                  h3.exercise {display:none}
+                  table {page-break-inside:avoid}}
+  </style>
+</head>
+
+<!--=======================================================================-->
+
+<body bgcolor='#880000'>
+  <center>
+    <table width='720' cellpadding='40' bgcolor='#ffffff'>
+      <tr>
+        <td>
+
+<!--=======================================================================-->
+
+<center>
+  <br/>
+  <table width='100%' cellspacing='0' cellpadding='0'>
+    <tr>
+      <td height='40' align='center'>
+        <span style='font-size:18pt; text-align:center'>C H A P T E R&nbsp;&nbsp;2</span>
+      </td>
+    </tr>
+  </table>
+</center>
+<!--=======================================================================-->
+
+<center>
+  <table width='100%' height='60' cellspacing='0' cellpadding='0' bgcolor='#e4eaea' border='1'>
+    <tr>
+      <td  height='30' align='center'>
+        <span style='font-size:24pt;color:#000066;text-align:center'>Game Description</span>
+      </td>
+    </tr>
+  </table>
+  <br/>
+</center>
+
+<!--=======================================================================-->
+
+<h3>2.1 Introduction</h3>
+
+<p>The most significant characteristic of General Game Playing is that players do not know the rules of games before those games begin.  Game rules are communicated at runtime, and the players must be able to read and understand the descriptions they are given in order to play legally and effectively.</p>
+
+<p>In General Game Playing, games are defined in a formal language known as GDL.  GDL is a logic programming language.  It is similar to other logic programming languages, such as Datalog and Prolog and Epilog, except that (1) it has restrictions that assure that all questions of logical entailment for any description in the language are decidable and (2) it includes some reserved words that specialize it for the description of games.</p>
+
+<p>This chapter is an introduction to GDL and the issues that arise in using it to describe games.  We start with an introduction to the modeling games as dataset graphs, and we illustrate with the game of Tic Tac Toe.  We then introduce GDL, and we show how to encode the rules of Tic Tac Toe as rules in GDL.  Finally, we talk about additional features of games that ensure that they are interesting.</p>
+
+<!--=======================================================================-->
+
+<h3>2.2 Games As Dataset Graphs</h3>
+
+<p>The GDL model of games starts with entities and relations.  <i>Entities</i> represent objects presumed or hypothesized to exist in the game.  <i>Relations</i> represent properties of those objects or relationships among them.</p>
+
+<p>In our examples here, we refer to entities and relations using strings of letters, digits, and a few non-alphanumeric characters (e.g. "_").  For reasons described below, we prohibit strings beginning with upper case letters; all other combinations are acceptable.  Examples include <tt>x</tt>, <tt>o</tt>, <tt>123</tt>, and <tt>white_king</tt>.</p>
+
+<p>The set of all entities that can be used in a game is called the <i id='domain'>domain</i> of the game.  The set of all relations in a game is called the <i id='signature'>signature</i> of the game.  In GDL, domains and signatures are always finite (albeit in some cases very, very large).</p>
+
+<p>The <i id='arity'>arity</i> of a relation is the number of objects involved in any instance of that relation.  <!--For example ...-->  Arity is an inherent property of a relation and never changes.</p>
+
+<!--<p>The <i id='cardinality'>cardinality</i> of a relation in a given game st is the number of tuples of objects that satisfy the relation.  Unlike arity, the cardinality of a relation can change as the database moves from one state to another.</p>-->
+
+<p>A game <i id='schema'>schema</i> consists of a domain, a signature, and an assignment of arities for each of the relations in the signature.</p>
+
+<p>Given a game schema, we define a <i id='proposition'>proposition</i> to be a structure consisting of an <i>n</i>-ary relation from the signature and <i>n</i> objects from the domain.  In what follows, we write propositions using traditional mathematical notation.  For example, if <tt>r</tt> is a binary relation and <tt>a</tt> and <tt>b</tt> are entities, then <tt>r(a,b)</tt> is a proposition.</p>
+
+<p>The <i id='propositional base'>propositional base</i> for a game is the set of all propositions that can be formed from the relations and the entities in the game's schema.  For a schema with entities <tt>a</tt> and <tt>b</tt> and relations <tt>p</tt> and <tt>q</tt> where <tt>p</tt> has arity 1 and <tt>q</tt> has arity 2, the propositional base is {<tt>p(a)</tt>, <tt>p(b)</tt>, <tt>q(a,a)</tt>, <tt>q(a,b)</tt>, <tt>q(b,a)</tt>, <tt>q(b,b)</tt>}.</p>
+
+<p>In GDL, propositions are usually partitioned into disjoint classes, viz. base propositions and effectory propositions (more commonly called <i>actions</i>).  Base propositions represent conditions that are true in the state of a game, and effectory propositions represent actions performed by game players.  (Later, in order to deal with partial information, we add sensory propositions (or <i>percepts</i>) to this partition.  For now, we ignore percepts.)</p>
+
+<!--=======================================================================-->
+
+<h3>2.4 Tic Tac Toe As a Dataset Graph</h3>
+
+<!--<p>In our definition of Tic Tac Toe, states are characterized by the contents of the cells on the Tic Tac Toe board and control (whose turn it is to play).  (It is true that control can be defined in terms of the contents of cells; but making control explicit costs little and simplifies the description.)  In what follows, we use the ternary relation constant <tt>cell</tt> together with a row <i>m</i> and a column <i>n</i> and a mark <i>w</i> to designate the proposition that the cell in row <i>m</i> and column <i>n</i> contains <i>w</i> where <i>w</i> is either an <tt>x</tt> or an <tt>o</tt> or a <tt>b</tt> (for blank).  For example, the term <tt>cell(2,3,o)</tt> refers to the proposition asserting that there is an <tt>o</tt> in the cell in row <tt>2</tt> and column <tt>3</tt>.  We use the unary relation constant <tt>control</tt> to state that it is that role's turn to mark a cell.  For example, the proposition <tt>control(white)</tt> asserts that it is <tt>white</tt>'s turn to mark a cell.</p>
+
+<p>There only two types of actions a player can perform - it can mark a cell or it can do nothing (which is what a player does when it is not his turn to mark a cell).  The binary relation <tt>mark</tt> together with a row <i>m</i> and a column <i>n</i> designates the action of placing a mark in row <i>m</i> and column <i>n</i>.  The mark placed there depends on who does the action.  The 0-ary relation <tt>noop</tt> refers to the act of doing nothing.</p>
+-->
+
+<p>As an example,   let us look at a conceptualization of the states for the game of Tic-Tac-Toe as datasets.  We can think of states in terms of two relations.  The <tt>cell</tt> relation holds of a row and a column and a <i>filler</i> if and only if the cell in the specified row and column contains the specified filler.  The filler can be the mark of either player or the symbol b (indicating that the cell is blank).  The <tt>control</tt> relation holds of the player whose turn it is to play.  the table below lists all of the possible propositions that can be formed using this conceptualization.</p>
+
+<center>
+  <table>
+    <tr>
+      <td>
+<pre>
+cell(1,1,x)
+cell(1,2,x)
+cell(1,3,x)
+cell(2,1,x)
+cell(2,2,x)
+cell(2,3,x)
+cell(3,1,x)
+cell(3,2,x)
+cell(3,3,x)
+
+
+
+</pre>
+      </td>
+      <td width='20'>&nbsp;</td>
+      <td valign='top'>
+<pre>
+cell(1,1,o)
+cell(1,2,o)
+cell(1,3,o)
+cell(2,1,o)
+cell(2,2,o)
+cell(2,3,o)
+cell(3,1,o)
+cell(3,2,o)
+cell(3,3,o)
+
+control(x)
+control(o)
+</pre>
+      </td>
+      <td width='20'>&nbsp;</td>
+      <td valign='top'>
+<pre>
+cell(1,1,b)
+cell(1,2,b)
+cell(1,3,b)
+cell(2,1,b)
+cell(2,2,b)
+cell(2,3,b)
+cell(3,1,b)
+cell(3,2,b)
+cell(3,3,b)
+
+
+
+</pre>
+      </td>
+    </tr>
+  </table>
+</center>
+
+<p>In Tic Tac Toe, there is only one type of action a player can perform - it can mark a cell.  The binary operation <tt>mark</tt> together with a row <i>m</i> and a column <i>n</i> designates the action of placing a mark in row <i>m</i> and column <i>n</i>.  The mark placed there depends on who does the action.  The action base for this model is shown below.</p>
+
+<center>
+  <table>
+    <tr>
+      <td>
+<pre>
+mark(1,1)
+mark(1,2)
+mark(1,3)
+</pre>
+      </td>
+      <td width='20'>&nbsp;</td>
+      <td valign='top'>
+<pre>
+mark(2,1)
+mark(2,2)
+mark(2,3)
+</pre>
+      </td>
+      <td width='20'>&nbsp;</td>
+      <td valign='top'>
+<pre>
+mark(3,1)
+mark(3,2)
+mark(3,3)
+</pre>
+      </td>
+    </tr>
+  </table>
+</center>
+
+<p>The dataset shown below represents the initial state of Tic Tac Toe.  All of the cells are blank and the x player is in control.</p>
+
+<center>
+<table style='font-family:courier;font-size:14px'><tr>
+<td width='10'>&nbsp;</td>
+<td>
+<pre>cell(1,1,b)cell(1,2,b)cell(1,3,b)cell(2,1,b)cell(2,2,b)cell(2,3,b)cell(3,1,b)cell(3,2,b)cell(3,3,b)control(x)</pre>
+</td>
+<td width='10'>&nbsp;</td>
+</tr></table>
+</center>
+
+<p>Given the rules of Tic Tac Toe, all nine possible moves are legal in this state.</p>
+
+<center>
+<table style='font-family:courier;font-size:14px'><tr>
+<td width='10'>&nbsp;</td>
+<td>
+<pre>cell(1,1,x)cell(1,2,b)cell(1,3,b)cell(2,1,b)cell(2,2,b)cell(2,3,b)cell(3,1,b)cell(3,2,b)cell(3,3,b)control(x)</pre>
+</td>
+<td width='10'>&nbsp;</td>
+</tr></table>
+</center>
+
+<p>The graphs consists of all feasible states with arcs defining transitions.  Too large too draw (here some 5040) states.
+
+<!--=======================================================================-->
+
+<h3>2.5 Game Description Language</h3>
+<p>In GDL, we fix the meanings of some words in the language for all games (the <i>game-independent vocabulary</i>) while at the same time allowing game authors to use their own words for individual games (the <i>game-specific vocabulary</i>).</p>
+
+<p>There are 101 game-independent object constants in GDL, viz. the base ten representations of the integers from 0 through 100, inclusive, i.e. 0, 1, 2, ... , 100.  These are included for use as utility values for game states, with 0 being low and 100 being high.  GDL has no game-independent function constants.  However, there are seven game-independent relation constants, viz. the ones shown below.</p>
+
+<dl>
+  <dd><tt>role(</tt><i>a</i><tt>)</tt> means that <i>a</i> is a role in the game.</dd>
+  <dd><tt>base(</tt><i>p</i><tt>)</tt> means that <i>p</i> is a base proposition in the game.</dd>  <dd><tt>action(</tt><i>a</i><tt>)</tt> means that <i>a</i> is a feasible action in the game.</dd>
+  <dd><tt>init(</tt><i>p</i><tt>)</tt> means that the proposition <i>p</i> is true in the initial state.</dd>  <dd><tt>legal(</tt><i>a</i><tt>)</tt> means it is legal for the player in control to play action <i>a</i> in the current state.</dd>  <dd><tt>goal(</tt><i>r</i><tt>,</tt><i>n</i><tt>)</tt> means that player the current state has utility <i>n</i> for player <i>r</i>.</dd>  <dd><tt>terminal</tt> means that the current state is a terminal state.</dd>
+
+</dl>
+
+<p>A GDL description is an open logic program with the following input and output relations.  (1) A GDL game description must give complete definitions for <tt>role</tt>, <tt>base</tt>, <tt>action</tt>, <tt>init</tt>. (2) It must define <tt>legal</tt> and <tt>goal</tt> and <tt>terminal</tt> in terms of an input relation and the game-specific base relations.</p>
+
+<p>We can describe these concepts abstractly.  However, experience has shown that most people learn their meaning more easily through examples.  In the next section, we look at a definition of one particular game, viz. Tic Tac Toe.</p>
+
+<!--=======================================================================-->
+
+<h3>2.6 Tic Tac Toe Game Rules</h3>
+
+<p>We begin with an enumeration of roles.  In this case, there are just two roles, here called <tt>x</tt> and <tt>o</tt></p>
+
+<pre>
+    role(white)    role(black)
+</pre>
+
+<p>We can characterize the propositions of the game as shown below.</p>
+
+<pre>
+    base(cell(M,N,x)) :- index(M) & index(N)
+    base(cell(M,N,o)) :- index(M) & index(N)
+    base(cell(M,N,b)) :- index(M) & index(N)
+
+    base(control(white))
+    base(control(black))
+</pre>
+
+<p>We can characterize the feasible actions for each role in similar fashion.</p>
+
+<pre>
+    action(mark(M,N)) :- index(M) & index(N)
+
+    index(1)
+    index(2)
+    index(3)
+</pre>
+
+<p>Next, we characterize the initial state by writing all relevant propositions that are true in the initial state.  In this case, all cells are blank; and the <tt>x</tt> player has control.</p>
+
+<pre>
+    init(cell(M,N,b)) :- index(M) & index(N)    init(control(x))</pre>
+<p>With our declarations out of the way, we can get down to the dynamics of the game.  First, we define legality.  It is legal to mark a cell if that cell is blank.</p><table width='100%' style='font-family:courier;font-size:14px'>
+  <tr>
+    <td width='10'>&nbsp;</td>
+    <td>
+<pre>legal(mark(M,N)) :- cell(M,N,b)</pre>
+    </td>
+    <td width='10'>&nbsp;</td>
+  </tr>
+</table>
+
+<p>In GDL, symbols that begin with capital letters are variables, while symbols that begin with lower case letters are constants.  The <tt>:-</tt> operator is read as "if" - the expression to its left is true if the expressions that follow it are true.  See the next chapter for a full description of syntax and semantics of rules.</p><p>Next, we look at the update rules for the game.  The first rules says that, if <i>w</i> is the player in control, and <i>w</i> marks the cell in row <i>m</i> and column <i>n</i>, then that cell contains a <i>w</i> in the next state.  The second rule says that the cell is no longer blank.  The third and fourth rules describe the change of control that occurs when a player marks a cell.</p>
+<table width='100%' style='font-family:courier;font-size:14px'>
+  <tr>
+    <td width='10'>&nbsp;</td>
+    <td>
+<pre>
+mark(M,N) :: control(W) ==> cell(M,N,W)mark(M,N) :: ~cell(M,N,b)mark(M,N) :: control(x) ==> ~control(x) & control(o)mark(M,N) :: control(o) ==> ~control(o) & control(x)</pre>
+    </td>
+    <td width='10'>&nbsp;</td>
+  </tr>
+</table>
+
+<p>Goals.  The x player gets a score of 100 if there is a line of x's and no line of o's.  It gets 0 points if there is a line of o's and no line of x's.  Otherwise, it gets 50 points.  The rewards for the o player are analogous.  The line relation is defined below.</p><table width='100%' style='font-family:courier;font-size:14px'><tr>
+<td width='10'>&nbsp;</td>
+<td>
+<pre>goal(x,100) :- line(x) & ~line(o)goal(x,50) :- ~line(x) & ~line(o)goal(x,0) :- ~line(x) &  line(o)goal(o,100) :- ~line(x) & line(o)goal(o,50) :- ~line(x) & ~line(o)goal(o,0) :- line(x) &  ~line(o)</pre>
+</td>
+<td width='10'>&nbsp;</td>
+</tr></table><p>Supporting concepts.  A line is a row of marks of the same type or a column or a diagonal.  A row of marks mean thats there three marks all with the same first coordinate.  The column and diagonal relations are defined analogously.</p><table width='100%' style='font-family:courier;font-size:14px'><tr>
+<td width='10'>&nbsp;</td>
+<td>
+<pre>line(Z) :- row(M,Z)line(Z) :- column(M,Z)line(Z) :- diagonal(Z)row(M,Z) :- cell(M,1,Z) & cell(M,2,Z) & cell(M,3,Z)column(N,Z) :- cell(1,N,Z) & cell(2,N,Z) & cell(3,N,Z)diagonal(Z) :- cell(1,1,Z) & cell(2,2,Z) & cell(3,3,Z)diagonal(Z) :- cell(1,3,Z) & cell(2,2,Z) & cell(3,1,Z)</pre>
+</td>
+<td width='10'>&nbsp;</td>
+</tr></table></center><p>Termination.  A game terminates whenever there is a line of marks of the same type or if the game is no longer open, i.e. there are no blank cells.</p><table width='100%' style='font-family:courier;font-size:14px'><tr>
+<td width='10'>&nbsp;</td>
+<td>
+<pre>terminal :- line(x)terminal :- line(o)
+terminal :- ~open
+
+open :- cell(M,N,b)</pre>
+</td>
+<td width='10'>&nbsp;</td>
+</tr></table><p>Note that, any of these relations can be assumed to be false if it is not provably true.  Thus, we have complete definitions for the relations <tt>legal</tt>, <tt>goal</tt>, and <tt>terminal</tt> in terms of <tt>cell</tt> and <tt>control</tt>.  The <tt>true</tt> relation starts out identical to <tt>init</tt> and on each step is changed to correspond to the extension of the <tt>next</tt> relation on that step.</p><p>Although GDL is designed for use in defining complete information games, it can be extended to partial information games.  That said, the resulting descriptions are more verbose and more expensive to process.</p>
+
+<!--=======================================================================-->
+
+<h3>2.7 Game Requirements</h3>
+
+<p>The definitions in Section 2.2 constrain GDL to game descriptions from which it is possible to compute the legal actions of all players for each state and from which it is possible to compute the next state for each state from the actions of all players.  However, there are additional constraints that limit the scope of GDL to avoid problematic games.</p>
+
+<p><i>Termination</i>.   A game description in GDL <i>terminates</i> if all infinite sequences of legal moves from the initial state of the game reach a terminal state after a finite number of steps.</p>
+
+<p><i>Playability</i>.  A game description in GDL is <i>playable</i> if and only if every role has at least one legal move in every non-terminal state reachable from the initial state.</p>
+
+<p><i>Winnability</i>.  A game description in GDL is <i>strongly winnable</i> if and only if, for some role, there is a sequence of individual individual actions of that role that leads to a terminal state of the game where that role's goal value is maximal no matter what the other players do.  A game description in GDL is <i>weakly winnable</i> if and only if, for every role, there is a sequence of <i>joint</i> actions of all roles that leads to a terminal state where that role's goal value is maximal.</p>
+
+<p><i>Well-formedness</i>.  A game description in GDL is <i>well-formed</i> if it terminates and is both playable and weakly winnable.  </p>
+
+<p>In general game playing, all well-formed single player games should be strongly winnable.  Clearly, it is possible to generate game descriptions in GDL which are not well-formed.  Checking game descriptions to see if they are well-formed can certainly be done in general by using brute-force methods (exploring the entire game tree); and, for some games, faster algorithms may exist.  Game descriptions used in GGP competitions are always well-formed.  However, in this book, we occasionally look at games that are not well-formed for reasons of simplicity or pedagogy.</p>
+
+<!--=======================================================================-->
+
+<!--<h3>Exercises</h3>
+
+<p><a href='../exercises/exercise_02_01.html' style='color:#6666ff;cursor:pointer;text-decoration:none'>Exercise 2.1:</a> Consider the game description shown below.</p>
+
+<center>
+<table><tr><td>
+<xmp>  role(white)
+  role(black)
+
+  base(p)
+  base(q)
+  base(r)
+  base(s)
+
+  action(a)
+  action(b)
+  action(c)
+  action(d)
+
+  init(s)
+
+  legal(white,a)
+  legal(white,b)
+  legal(white,c)
+  legal(black,d)
+</xmp>
+      </td>
+      <td width='20'>&nbsp;</td>
+      <td valign='top'>
+<xmp>  next(p) :- does(white,a) & ~true(p)
+  next(p) :- ~does(white,a) & true(p)
+  next(q) :- does(white,b) & true(p)
+  next(q) :- does(white,c) & true(r)
+  next(q) :- ~does(white,b) & ~does(white,c) & true(q)
+  next(r) :- does(white,c) & true(q)
+  next(r) :- ~does(white,c) & true(r)
+
+  goal(white,100) :- terminal
+  goal(white,0) :- ~terminal
+  goal(black,100) :- terminal
+  goal(black,0) :- ~terminal
+
+  terminal :- true(p) & true(q) & true(r)
+</xmp>
+</td></tr></table>
+</center>
+<br/>
+
+  <table>
+    <tr><td width='20'></td><td>(<i>a</i>)</td><td>How many roles are there?</td></tr>
+    <tr><td width='20'></td><td>(<i>b</i>)</td><td>How many propositions are there?</td></tr>
+    <tr><td width='20'></td><td>(<i>c</i>)</td><td>How many feasible actions are there?</td></tr>
+    <tr><td width='20'></td><td>(<i>d</i>)</td><td>How many actions are legal for white in the initial state?</td></tr>
+    <tr><td width='20'></td><td>(<i>e</i>)</td><td>How many propositions are true in the initial state?</td></tr>
+    <tr><td width='20'></td><td valign='top'>(<i>f</i>)</td><td>How many are true in the state that results from white performing action a and black performing action d in the initial state?</td></tr>
+    <tr><td width='20'></td><td>(<i>g</i>)</td><td>What is the minimum number of steps this game can take to terminate?</td></tr>
+  </table>
+
+<p><a href='../exercises/exercise_02_02.html' style='color:#6666ff;cursor:pointer;text-decoration:none'>Exercise 2.2:</a> More questions about the game in Exercise 2.1.</p>
+
+  <table>
+    <tr><td width='20'></td><td>(<i>a</i>)</td><td>Does the game always terminate?</td></tr>
+    <tr><td width='20'></td><td>(<i>b</i>)</td><td>Is the game playable?</td></tr>
+    <tr><td width='20'></td><td>(<i>c</i>)</td><td>Is the game strongly winnable for white?</td></tr>
+    <tr><td width='20'></td><td>(<i>d</i>)</td><td>Is the game weakly winnable for white?</td></tr>
+    <tr><td width='20'></td><td>(<i>e</i>)</td><td>Is the game strongly winnable for black?</td></tr>
+    <tr><td width='20'></td><td>(<i>f</i>)</td><td>Is the game weakly winnable for black?</td></tr>
+  </table>-->
+
+<!--<li>Use our simple <a href='../pages/kifstepper.html'>GDL stepper</a> to compute the state resultingfrom the following three joint moves.</li>-->
+<br/>
+
+<!--<li>Create a suicide version of this game.  Give a move history that takes the gamefrom the initial state to a terminal state in which white has won.  Use the GDLstepper to show that your history works.</li>--><br/>
+
+<!--=======================================================================-->
+
+          </td>
+        </tr>
+      </table>
+    </center>
+  </body>
+</html>
