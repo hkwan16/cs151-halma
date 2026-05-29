@@ -63,6 +63,26 @@ function renderstate(state) {
   return table;
 }
 
+var selectedMoveStart = null;
+
+function renderactions(currentState) {
+  var panel = document.createElement('div');
+  panel.setAttribute('class', 'action-panel');
+
+  var message = document.createElement('div');
+  message.setAttribute('id', 'move-message');
+
+  if (findterminalp(currentState, library)) {
+    message.innerHTML = 'Game over.';
+  } else {
+    var role = compfindx('R', seq('control', 'R'), currentState, library);
+    message.innerHTML = 'Drag a ' + role + ' piece to an empty legal destination.';
+  }
+
+  panel.appendChild(message);
+  return panel;
+}
+
 function renderboard(state) {
   var table = document.createElement('table');
   table.setAttribute('cellspacing', '0');
@@ -73,6 +93,12 @@ function renderboard(state) {
     for (var c = 1; c <= 16; c++) {
       var cell = row.insertCell(c - 1);
       cell.setAttribute('class', yardClass(r, c));
+      cell.setAttribute('data-row', String(r));
+      cell.setAttribute('data-col', String(c));
+      cell.addEventListener('dragover', handleDragOver);
+      cell.addEventListener('dragleave', handleDragLeave);
+      cell.addEventListener('drop', handleDrop);
+      cell.addEventListener('click', handleCellClick);
       cell.appendChild(renderpiece(r, c, state));
     }
   }
@@ -81,12 +107,144 @@ function renderboard(state) {
 
 function renderpiece(r, c, state) {
   var mark = compfindx('X', seq('cell', String(r), String(c), 'X'), state, library);
+  var control = compfindx('R', seq('control', 'R'), state, library);
   var piece = document.createElement('div');
   piece.setAttribute('class', 'piece ' + mark);
+  piece.setAttribute('data-row', String(r));
+  piece.setAttribute('data-col', String(c));
   if (mark === 'red' || mark === 'blue') {
     piece.innerHTML = '&nbsp;';
   }
+  if (mark === control && !findterminalp(state, library)) {
+    piece.setAttribute('draggable', 'true');
+    piece.setAttribute('title', 'Drag to move');
+    piece.addEventListener('dragstart', handleDragStart);
+    piece.addEventListener('dragend', handleDragEnd);
+  }
   return piece;
+}
+
+function handleDragStart(event) {
+  var row = event.currentTarget.getAttribute('data-row');
+  var col = event.currentTarget.getAttribute('data-col');
+  selectedMoveStart = {row: row, col: col};
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text/plain', row + ',' + col);
+  setSelectedCell(row, col);
+}
+
+function handleDragEnd() {
+  clearDragHighlights();
+}
+
+function handleDragOver(event) {
+  event.preventDefault();
+  event.currentTarget.classList.add('drag-over');
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move';
+  }
+}
+
+function handleDragLeave(event) {
+  event.currentTarget.classList.remove('drag-over');
+}
+
+function handleDrop(event) {
+  event.preventDefault();
+  var target = event.currentTarget;
+  target.classList.remove('drag-over');
+
+  var source = event.dataTransfer.getData('text/plain').split(',');
+  if (source.length !== 2) {
+    flashInvalid(target);
+    return;
+  }
+
+  executeMoveFromTo(source[0], source[1], target.getAttribute('data-row'), target.getAttribute('data-col'), target);
+}
+
+function handleCellClick(event) {
+  if (findterminalp(state, library)) {
+    return;
+  }
+
+  var cell = event.currentTarget;
+  var row = cell.getAttribute('data-row');
+  var col = cell.getAttribute('data-col');
+  var mark = compfindx('X', seq('cell', row, col, 'X'), state, library);
+  var control = compfindx('R', seq('control', 'R'), state, library);
+
+  if (mark === control) {
+    selectedMoveStart = {row: row, col: col};
+    setSelectedCell(row, col);
+    showMoveMessage('Selected ' + control + ' piece at (' + row + ', ' + col + '). Click a legal destination.');
+    return;
+  }
+
+  if (selectedMoveStart) {
+    executeMoveFromTo(selectedMoveStart.row, selectedMoveStart.col, row, col, cell);
+  }
+}
+
+function executeMoveFromTo(startRow, startCol, endRow, endCol, targetCell) {
+  var action = findLegalMove(startRow, startCol, endRow, endCol);
+  if (action) {
+    selectedMoveStart = null;
+    perform(action);
+    return true;
+  }
+
+  flashInvalid(targetCell);
+  showMoveMessage('Invalid move. Try a highlighted player piece and an empty legal destination.');
+  return false;
+}
+
+function findLegalMove(startRow, startCol, endRow, endCol) {
+  var moveText = 'move(' + startRow + ',' + startCol + ',' + endRow + ',' + endCol + ')';
+  var action = read(moveText);
+  if (findlegalp(action, state, library)) {
+    return action;
+  }
+  return null;
+}
+
+function setSelectedCell(row, col) {
+  clearSelectedCell();
+  var cell = document.querySelector('.halma-board td[data-row="' + row + '"][data-col="' + col + '"]');
+  if (cell) {
+    cell.classList.add('selected');
+  }
+}
+
+function clearSelectedCell() {
+  var cells = document.querySelectorAll('.halma-board td.selected');
+  for (var i = 0; i < cells.length; i++) {
+    cells[i].classList.remove('selected');
+  }
+}
+
+function clearDragHighlights() {
+  var cells = document.querySelectorAll('.halma-board td.drag-over');
+  for (var i = 0; i < cells.length; i++) {
+    cells[i].classList.remove('drag-over');
+  }
+}
+
+function flashInvalid(cell) {
+  if (!cell) {
+    return;
+  }
+  cell.classList.add('invalid');
+  setTimeout(function() {
+    cell.classList.remove('invalid');
+  }, 350);
+}
+
+function showMoveMessage(text) {
+  var message = document.getElementById('move-message');
+  if (message) {
+    message.innerHTML = text;
+  }
 }
 
 function yardClass(r, c) {
@@ -146,6 +304,21 @@ body {
 }
 .halma-board td.red-yard { background: #ffe8e8; }
 .halma-board td.blue-yard { background: #e8edff; }
+.halma-board td.drag-over {
+  outline: 3px solid #444444;
+  outline-offset: -3px;
+}
+.halma-board td.selected {
+  box-shadow: inset 0 0 0 3px #222222;
+}
+.halma-board td.invalid {
+  background: #ffd0d0;
+}
+.action-panel {
+  min-height: 24px;
+  color: #000066;
+  font-size: 16px;
+}
 .piece {
   width: 20px;
   height: 20px;
@@ -159,6 +332,12 @@ body {
 .piece.blue {
   background: #3467d6;
   border: 1px solid #173a83;
+}
+.piece[draggable="true"] {
+  cursor: grab;
+}
+.piece[draggable="true"]:active {
+  cursor: grabbing;
 }
 .piece.blank {
   background: transparent;
