@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Halma (2 players)</title>
+  <title>Halma (2 Player Small)</title>
   <script type="text/javascript" src="./Halma_files/epilog.js"></script>
   <script type="text/javascript" src="./Halma_files/standalone.js"></script>
   <script type="text/javascript">
@@ -45,7 +45,7 @@ function renderstate(state) {
   var cell = row.insertCell(0);
   cell.setAttribute('align', 'center');
   cell.setAttribute('style', 'font-size:20px;font-weight:bold');
-  cell.innerHTML = 'Halma (2 players) - Step: ' + step;
+  cell.innerHTML = 'Halma (2 Player Small) - Step: ' + step;
 
   row = table.insertRow(1);
   cell = row.insertCell(0);
@@ -346,14 +346,10 @@ body {
 <body onload="initialize()">
   <div class="shell">
     <center>
-      <h1>Halma (2 players)</h1>
+      <h1>Halma (2 Player Small)</h1>
       <div class="meta">
-        Protocol: standalone<br>
-        <a href="Halma4.html">4-player Halma</a><br>
-        Strategy: manager<br>
-        Game: halma<br>
-        Startclock: Infinity<br>
-        Playclock: Infinity
+        <a href="Halma_2_player_large.html">2 Player Large</a> |
+        <a href="Halma_4_player.html">4 Player</a>
       </div>
       <div id="stateholder"></div>
       <br>
