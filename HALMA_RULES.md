@@ -1,6 +1,6 @@
 # Halma Rules
 
-This summary is based on `halma_game.pdf`, a Martin Gardner article about Halma and Halma-style puzzles. Halma is a late-19th-century board game whose name comes from the Greek word for "leap"; it is one of the ancestors of Chinese checkers.
+This summary is based on `halma_game.pdf`, a Martin Gardner article about Halma and Halma-style puzzles. Halma is a late-19th-century board game whose name comes from the Greek word for "leap". It is one of the ancestors of Chinese checkers.
 
 ## Goal
 
@@ -9,8 +9,6 @@ Move all of your counters from your starting yard into the opposing yard. The fi
 ## Board
 
 Traditional Halma is played on a square board with 16 cells on each side.
-
-The PDF also describes smaller puzzle versions, including a 9-by-9 Japanese chessboard puzzle and order-8, order-7, and order-6 square boards. The normal game rules are the same: pieces move by steps or hops across square cells.
 
 ## Setup
 
@@ -29,7 +27,6 @@ The PDF also describes smaller puzzle versions, including a 9-by-9 Japanese ches
 3. Players may play individually, each trying to reach the diagonally opposite yard.
 4. Players may also play in partnerships, with opposite or adjacent players helping each other. In partnership play, the first pair to yard all 26 of its counters wins.
 
-The article notes that Halma strategy is usually best with two players, because the four-player game becomes very complex.
 
 ## Turn Order
 
@@ -84,11 +81,3 @@ The game ends when a player has moved all of their counters into the opposing ya
 In a two-player game, a player wins by occupying the opponent's starting yard with all 19 counters.
 
 In a four-player partnership game, a team wins when all 26 counters belonging to that pair have reached their target yards.
-
-## Optional Anti-Stalling Rule
-
-The PDF mentions an extra rule suggested to prevent draws caused by a player keeping a counter permanently in their own yard:
-
-- If a counter can leave its own yard by jumping an enemy counter, or by a chain of jumps that starts by jumping an enemy counter, it must do so.
-- After a counter has left its own yard, it may not come to rest in that yard again, though it may hop across it.
-
